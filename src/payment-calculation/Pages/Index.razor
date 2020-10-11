@@ -1,0 +1,76 @@
+﻿@page "/"
+
+<h1>Provisjonskalkulator</h1>
+
+<div class="form-row">
+    <div class="col-md-3 md-3">
+        <label for="minimumsalary">Årlig fastlønn</label>
+        <input type="number" class="form-control" id="minimumsalary" @bind-value="YearlySalary" @bind-value:event="oninput" required>
+    </div>
+    <div class="col-md-3 md-3">
+        <label for="invoicedhours">Fakturerte timer</label>
+        <input type="number" class="form-control" id="invoicedhours" @bind-value="HoursInvoiced" @bind-value:event="oninput" required>
+    </div>
+    <div class="col-md-3 md-3">
+        <label for="hourrate">Timelønn</label>
+        <input type="number" class="form-control" id="hourrate" @bind-value="HourRate" @bind-value:event="oninput" required>
+    </div>
+    <div class="col-md-3 md-3">
+        <label for="commission">Provisjon</label>
+        <div class="input-group mb-2">
+            <div class="input-group-prepend">
+                <div class="input-group-text">%</div>
+            </div>
+            <input @bind-value="CommissionProcent" @bind-value:event="oninput" type="number" class="form-control" id="commission" placeholder="Provisjon">
+        </div>
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-primary mb-2" @onclick="CalculateCommission">Kalkuler</button>
+    </div>
+</div>
+
+@if(ShowResult) 
+{
+    <div class="form-row">
+        <div class="col-md-3 md-3">
+            <label for="commission">Måndlig betaling</label>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">kr.</span>
+                    <span class="input-group-text">@MonthlyPayment</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 md-3">
+            <label for="commission">Estimert årlig betaling</label>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">kr.</span>
+                    <span class="input-group-text">@EstimatedYearlyPayment</span>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool ShowResult { get; set; } = false;
+    private int YearlySalary { get; set; }
+    private int HoursInvoiced { get; set; }
+    private int HourRate { get; set; }
+    private int CommissionProcent { get; set; }
+    private double MonthlySalary => YearlySalary / 12;
+
+    private double MonthlyPayment { get; set; } = 0.0;
+    private double EstimatedYearlyPayment { get; set; } = 0.0;
+
+    private void CalculateCommission() {
+        var selfCost = MonthlySalary*1.5;
+        var invoicedTurnover = HoursInvoiced * HourRate;
+        var monthlyCommission = (invoicedTurnover-selfCost)*30/100;
+
+        MonthlyPayment = MonthlySalary + monthlyCommission;
+        EstimatedYearlyPayment = MonthlyPayment*12;
+        ShowResult = true;
+    }
+}
