@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using System.Globalization
 
 <h1>Provisjonskalkulator</h1>
 
@@ -61,16 +62,19 @@
     private int CommissionProcent { get; set; }
     private double MonthlySalary => YearlySalary / 12;
 
-    private double MonthlyPayment { get; set; } = 0.0;
-    private double EstimatedYearlyPayment { get; set; } = 0.0;
+    private string MonthlyPayment { get; set; }
+    private string EstimatedYearlyPayment { get; set; }
 
     private void CalculateCommission() {
         var selfCost = MonthlySalary*1.5;
         var invoicedTurnover = HoursInvoiced * HourRate;
         var monthlyCommission = (invoicedTurnover-selfCost)*30/100;
 
-        MonthlyPayment = MonthlySalary + monthlyCommission;
-        EstimatedYearlyPayment = MonthlyPayment*12;
+        CultureInfo culture = CultureInfo.CreateSpecificCulture("nb-NO");
+
+        var numMonthlyPayment = MonthlySalary + monthlyCommission;
+        MonthlyPayment = numMonthlyPayment.ToString("N2", culture);
+        EstimatedYearlyPayment = (numMonthlyPayment*12).ToString("N2", culture);
         ShowResult = true;
     }
 }
